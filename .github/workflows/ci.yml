@@ -121,6 +121,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # A high or critical advisory in a dependency that ships to the browser
+      # is a release blocker, not a backlog item. Moderate findings in
+      # build-time tooling are not — the gate is deliberately set at "high".
+      - name: Audit
+        run: npm audit --audit-level=high
+
       - name: Lint
         run: npm run lint
 
