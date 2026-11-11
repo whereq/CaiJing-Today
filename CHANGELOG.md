@@ -1,0 +1,48 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+Nothing yet.
+
+## [1.0.0] — 2026-11-11
+
+The first public release.
+
+### Added
+
+- **A read API over a published schema.** `docs/SCHEMA.sql` is the contract:
+  15 tables and 2 views covering the news feed, the flash newswire, the market
+  quote strip, sector heat, crypto, the economic calendar, trending keywords
+  and the individual-stock hot list. The FastAPI service serves it under
+  `/api/v1` and never writes to it.
+- **A React 19 front end.** A bilingual (Chinese-first) interface with a
+  responsive home grid, category boards, article pages, search, a scrolling
+  quote ticker, a 7×24 flash feed and a dark/light theme.
+- **A self-contained Docker Compose stack.** `docker compose up` brings up
+  PostgreSQL 17, applies the schema contract, loads synthetic demo data and
+  serves the site on <http://localhost:8080>. A dev variant adds hot reload.
+- **A synthetic demo dataset.** `docs/samples/demo_data.sql` fills every panel
+  with plausible, entirely invented content, so a fresh checkout has something
+  to show without a data collector.
+- **A schema-drift guard.** `backend/caijing/schema_check.py` compares the
+  read-only ORM mirror against the live database and reports any column that
+  has gone missing, as a loud failure instead of a runtime 500. An offline
+  guard runs against a committed snapshot in CI.
+- **CI with four gates.** Backend lint, syntax and tests; a schema job that
+  applies the contract to a real PostgreSQL and checks the mirror against it;
+  a frontend lint, type-check, test and build job; and a Docker build gate.
+
+### Notes
+
+- The upstream data collector is a separate component and is not part of this
+  repository. See [docs/data-sources.md](docs/data-sources.md).
+- Authentication is optional. Browsing is public; sign-in is delegated to
+  your own OpenID Connect provider.
+
+[Unreleased]: https://github.com/whereq/CaiJing-Today/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/whereq/CaiJing-Today/releases/tag/v1.0.0

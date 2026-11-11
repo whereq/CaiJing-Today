@@ -1,0 +1,98 @@
+# NOTICE
+
+CaiJing Today is licensed under the MIT License (see [LICENSE](LICENSE)).
+
+This file lists the third-party components that CaiJing Today depends on, and
+the attribution or notice obligations that come with them.
+
+## Python dependencies
+
+| Component | License | Note |
+|---|---|---|
+| [fastapi](https://pypi.org/project/fastapi/) | MIT | |
+| [uvicorn](https://pypi.org/project/uvicorn/) | BSD-3-Clause | Installed with the `standard` extra, which pulls in `httptools` and `uvloop`. |
+| [pydantic](https://pypi.org/project/pydantic/) | MIT | |
+| [pydantic-settings](https://pypi.org/project/pydantic-settings/) | MIT | |
+| [sqlalchemy](https://pypi.org/project/SQLAlchemy/) | MIT | |
+| [asyncpg](https://pypi.org/project/asyncpg/) | Apache-2.0 | The async PostgreSQL driver. |
+| [python-jose](https://pypi.org/project/python-jose/) | MIT | JWT decoding. The `cryptography` extra pulls in [cryptography](https://pypi.org/project/cryptography/) (Apache-2.0 OR BSD-3-Clause). |
+| [python-dotenv](https://pypi.org/project/python-dotenv/) | BSD-3-Clause | |
+| [httpx](https://pypi.org/project/httpx/) | BSD-3-Clause | Used for the OIDC JWKS fetch. |
+| [starlette](https://pypi.org/project/starlette/) | BSD-3-Clause | FastAPI's ASGI layer. |
+| [greenlet](https://pypi.org/project/greenlet/) | MIT | Required by SQLAlchemy's `run_sync`, used by the schema-drift guard. |
+
+## Development dependencies
+
+| Component | License | Note |
+|---|---|---|
+| [pytest](https://pypi.org/project/pytest/) | MIT | |
+| [pytest-asyncio](https://pypi.org/project/pytest-asyncio/) | MIT | |
+| [ruff](https://pypi.org/project/ruff/) | MIT | The linter and formatter. |
+
+The full, authoritative dependency set with exact versions is in
+[`backend/requirements.txt`](backend/requirements.txt).
+
+## Frontend dependencies
+
+| Component | License | Note |
+|---|---|---|
+| [react](https://www.npmjs.com/package/react) / [react-dom](https://www.npmjs.com/package/react-dom) | MIT | |
+| [axios](https://www.npmjs.com/package/axios) | MIT | |
+| [i18next](https://www.npmjs.com/package/i18next) / [react-i18next](https://www.npmjs.com/package/react-i18next) | MIT | Bilingual UI. |
+| [react-router-dom](https://www.npmjs.com/package/react-router-dom) | MIT | |
+| [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query) | MIT | |
+| [keycloak-js](https://www.npmjs.com/package/keycloak-js) | Apache-2.0 | The OIDC client used for optional sign-in. |
+| [vite](https://www.npmjs.com/package/vite) / [typescript](https://www.npmjs.com/package/typescript) | MIT / Apache-2.0 | |
+| [vitest](https://www.npmjs.com/package/vitest) | MIT | |
+| [eslint](https://www.npmjs.com/package/eslint) | MIT | |
+
+The full, authoritative dependency set with exact versions is in
+[`frontend/package-lock.json`](frontend/package-lock.json).
+
+## Fonts
+
+The interface uses the **IBM Plex** family (Sans, Mono), **Noto Sans SC** and
+**Noto Serif SC**, licensed under the **SIL Open Font License 1.1**. The fonts
+are loaded from a font CDN at runtime and are not redistributed with this
+repository. If you self-host the fonts instead, the OFL applies: keep the OFL
+text with the font files and do not sell the font on its own. The OFL reserves
+the "IBM Plex", "Noto Sans SC" and "Noto Serif SC" names.
+
+## Images
+
+The eight anonymous-avatar marks in
+`frontend/public/avatars/anonymous/` were drawn for this repository and are
+part of its MIT-licensed source. No third-party icon set is bundled.
+
+## Data sources
+
+CaiJing Today is a **reader**. It ships the schema it reads
+([`docs/SCHEMA.sql`](docs/SCHEMA.sql)) and a synthetic demo dataset
+([`docs/samples/demo_data.sql`](docs/samples/demo_data.sql)); it ships no
+scraper and no snapshot of real market data.
+
+The `source` values the feed carries — `akshare_em_global`,
+`akshare_em_cjzc`, `gdelt`, `polygon`, `rss`, `sec_edgar` — name the kind of
+upstream a collector would have read them from. They are a published
+vocabulary, not bundled data. If you connect a collector of your own and
+redistribute what it produces, **you** are responsible for complying with the
+terms of every source it read, and with the rights in the headlines and
+summaries it collected. Nothing in this repository grants you any right to
+real financial news content.
+
+The demo dataset is entirely synthetic: no real headline, quote, index level,
+percentage move, economic-calendar entry or URL appears in it. Instrument
+names are real because they are the taxonomy the UI renders against; every
+value attached to them is invented. See the header of
+[`docs/samples/demo_data.sql`](docs/samples/demo_data.sql) for the full rules.
+
+## Trademarks
+
+"CaiJing Today" and the 财经今日 wordmark identify this project. This licence
+covers the source code, not the name or the wordmark — see
+[CONTRIBUTING.md](CONTRIBUTING.md) if you want to use them.
+
+## No warranty
+
+CaiJing Today is provided "AS IS", without warranty of any kind. See the MIT
+licence text in [LICENSE](LICENSE) for the full disclaimer.
