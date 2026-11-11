@@ -1,0 +1,160 @@
+name: CI
+
+# Gate for every push and PR. One job per surface, plus two gates that the
+# unit tests cannot cover: the published schema contract must actually apply
+# to a real PostgreSQL and match the ORM mirror, and the Docker images must
+# actually build.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (lint, syntax, test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Syntax gate
+        run: python -m compileall -q caijing api
+
+      - name: Tests
+        run: pytest -q
+
+      - name: Explain the DB-backed check
+        run: |
+          echo "::notice::The live postgres drift check (tests/test_schema_drift.py)"
+          echo "::notice::skips here because no database is attached. The 'schema'"
+          echo "::notice::job below runs it against a real PostgreSQL instead, and"
+          echo "::notice::the committed schema snapshot (tests/schema_snapshot.json)"
+          echo "::notice::is what guards the read-only mirror offline."
+
+  schema:
+    name: Schema — the published contract matches the ORM mirror
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: caijing
+          POSTGRES_PASSWORD: caijing
+          POSTGRES_DB: caijing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U caijing -d caijing"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql+asyncpg://caijing:caijing@localhost:5432/caijing
+      PGPASSWORD: caijing
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      # The schema contract is the promise the repository makes to anyone who
+      # runs it. If it does not apply cleanly, or the demo data does not load
+      # on top of it, the repository is broken in a way no unit test sees.
+      - name: Apply the published schema contract
+        run: psql -h localhost -U caijing -d caijing -v ON_ERROR_STOP=1 -f docs/SCHEMA.sql
+
+      - name: Load the synthetic demo data
+        run: psql -h localhost -U caijing -d caijing -v ON_ERROR_STOP=1 -f docs/samples/demo_data.sql
+
+      - name: The ORM mirror must match the contract
+        working-directory: backend
+        run: python -m caijing.schema_check
+
+      - name: The API must serve the demo data
+        working-directory: backend
+        run: pytest -q
+
+  frontend:
+    name: Frontend (lint, typecheck, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          # Baked into the bundle at build time, exactly like the prod image
+          # does (docker/frontend/Dockerfile).
+          VITE_KEYCLOAK_URL: https://auth.example.com
+          VITE_KEYCLOAK_REALM: caijing-today
+          VITE_KEYCLOAK_CLIENT_ID: caijing-today-spa
+
+  docker:
+    name: Docker — the images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The image build is its own gate: the runtime image is assembled from
+      # the pinned requirements, and a dependency the image forgot to install
+      # breaks the build in a way no unit test would catch.
+      - name: Build the API image
+        run: docker build -f backend/Dockerfile -t caijing-api:ci backend
+
+      - name: Build the frontend image
+        run: docker build -f docker/frontend/Dockerfile -t caijing-frontend:ci .
+
+      - name: Validate the compose stack
+        run: |
+          cp docker/.env.example docker/.env
+          docker compose -f docker/docker-compose.yml config -q
