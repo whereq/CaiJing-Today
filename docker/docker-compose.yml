@@ -1,0 +1,96 @@
+# =============================================================================
+# CaiJing Today — Docker Compose stack
+# =============================================================================
+#   cp docker/.env.example docker/.env
+#   docker compose -f docker/docker-compose.yml up -d --build
+#
+# This stack is self-contained: it runs its own PostgreSQL 17, applies the
+# published schema contract (docs/SCHEMA.sql) on first boot, and loads the
+# synthetic demo data (docs/samples/demo_data.sql) so every panel in the UI
+# has something to show.
+#
+# Host ports: 8000 (API) / 8080 (web). Override them in docker/.env.
+#
+# The init scripts only run on FIRST boot — PostgreSQL applies
+# docker-entrypoint-initdb.d once, when the data directory is empty. To
+# re-apply the schema from scratch:
+#   docker compose -f docker/docker-compose.yml down -v
+# =============================================================================
+
+name: caijing
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — the database the API reads. The schema is applied on first
+  # boot from the published contract.
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+    container_name: caijing-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-caijing}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-caijing}
+      POSTGRES_DB: ${POSTGRES_DB:-caijing}
+      # Read by docker/db/init/10-load-demo.sh.
+      LOAD_DEMO_DATA: ${LOAD_DEMO_DATA:-true}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # The schema contract, applied first.
+      - ../docs/SCHEMA.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # The synthetic demo data — loaded by the script below, after the schema.
+      - ../docs/samples/demo_data.sql:/opt/caijing/demo_data.sql:ro
+      - ./db/init/10-load-demo.sh:/docker-entrypoint-initdb.d/10-load-demo.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-caijing} -d ${POSTGRES_DB:-caijing}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  # ---------------------------------------------------------------------------
+  # API — the read API. It never writes; it reads the schema contract.
+  # ---------------------------------------------------------------------------
+  caijing-api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: caijing-api
+    container_name: caijing-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-caijing}:${POSTGRES_PASSWORD_ENCODED:-caijing}@postgres:5432/${POSTGRES_DB:-caijing}
+      CORS_ORIGINS: '["http://localhost:${FRONTEND_PORT:-8080}", "http://localhost:5173", "http://localhost:3000"]'
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://auth.example.com}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-caijing-today}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-caijing-today-spa}
+      SEED_FALLBACK_ENABLED: ${SEED_FALLBACK_ENABLED:-false}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Frontend — the built SPA, served by nginx, which proxies /api to the API.
+  # ---------------------------------------------------------------------------
+  caijing-frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL:-https://auth.example.com}
+        VITE_KEYCLOAK_REALM: ${VITE_KEYCLOAK_REALM:-caijing-today}
+        VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-caijing-today-spa}
+    image: caijing-frontend
+    container_name: caijing-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - caijing-api
+
+volumes:
+  postgres-data:

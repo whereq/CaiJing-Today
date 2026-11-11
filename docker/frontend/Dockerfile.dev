@@ -1,0 +1,14 @@
+ CaiJing Today frontend — development image (Vite dev server, hot reload).
+FROM node:22-slim
+
+WORKDIR /app
+
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm install
+
+# Source is bind-mounted by docker-compose.dev.yml for hot reload.
+COPY frontend/ .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
