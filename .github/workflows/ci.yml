@@ -148,11 +148,22 @@ jobs:
       # The image build is its own gate: the runtime image is assembled from
       # the pinned requirements, and a dependency the image forgot to install
       # breaks the build in a way no unit test would catch.
+      #
+      # The development images are built too. They are separate Dockerfiles,
+      # and a broken one of them breaks `docker compose -f
+      # docker/docker-compose.dev.yml up` for every contributor — which is
+      # exactly the kind of failure that used to reach a pull request.
       - name: Build the API image
         run: docker build -f backend/Dockerfile -t caijing-api:ci backend
 
       - name: Build the frontend image
         run: docker build -f docker/frontend/Dockerfile -t caijing-frontend:ci .
+
+      - name: Build the development API image
+        run: docker build -f docker/api/Dockerfile.dev -t caijing-api-dev:ci .
+
+      - name: Build the development frontend image
+        run: docker build -f docker/frontend/Dockerfile.dev -t caijing-frontend-dev:ci .
 
       - name: Validate the compose stack
         run: |
