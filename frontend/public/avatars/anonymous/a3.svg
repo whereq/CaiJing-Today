@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Anonymous avatar">
+  <title>Anonymous avatar</title>
+  <defs>
+    <linearGradient id="head" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#41497A"/>
+      <stop offset="1" stop-color="#2E3460"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 232c0-46 28-74 64-74s64 28 64 74z" fill="#41497A"/>
+  <circle cx="128" cy="96" r="66" fill="url(#head)"/>
+  <g>
+    <rect x="93" y="110" width="15" height="20" rx="3" fill="#2FBFC0"/>
+    <rect x="112" y="97" width="15" height="33" rx="3" fill="#48CE94"/>
+    <rect x="131" y="86" width="15" height="44" rx="3" fill="#FFC94F"/>
+    <rect x="150" y="103" width="15" height="27" rx="3" fill="#F2912A"/>
+  </g>
+</svg>
