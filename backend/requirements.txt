@@ -1,0 +1,22 @@
+# Core
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
+pydantic==2.12.5
+pydantic-settings==2.13.1
+
+# Database (async — read-only, over the schema contract in docs/SCHEMA.sql)
+sqlalchemy==2.0.48
+asyncpg==0.31.0
+
+# Authentication (OpenID Connect JWT verification — optional)
+python-jose[cryptography]==3.5.0
+
+# Utilities
+python-dotenv==1.2.2
+httpx==0.28.1
+
+# Development
+pytest==9.0.2
+pytest-asyncio==1.3.0
+greenlet==3.2.4   # required by SQLAlchemy run_sync used in the schema-drift guard
+ruff==0.15.8

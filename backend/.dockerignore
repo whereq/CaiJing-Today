@@ -1,0 +1,13 @@
+# Keep secrets and build artefacts out of the production API image.
+# Without this, `COPY . .` bakes backend/.env (which holds the database URL)
+# into a layer of the shipped image.
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.egg-info/
