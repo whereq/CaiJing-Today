@@ -207,46 +207,52 @@ FROM generate_series(1, 15) AS g;
 -- show_in_ticker drives the scrolling strip; show_in_charts drives the
 -- sparkline panels. The instrument names are real (the UI renders a symbol
 -- vocabulary); the levels and moves are fabricated.
+--
+-- SPARKLINE SHAPE: `sparkline` is a jsonb array of TEN NUMBERS scaled 0-30 —
+-- a normalised shape, not the price series. The API reads it with
+-- `float(p) for p in sparkline` and the front end plots the values directly as
+-- y-coordinates, so an array of objects here would raise a TypeError the
+-- moment /market/charts was called.
 INSERT INTO public.cj_market_quote (
     symbol, name_cn, name_en, asset_class, value, change, direction,
     sparkline, show_in_ticker, show_in_charts, sort_order, updated_at
 )
 VALUES
     ('000001.SS',  '上证指数',   'SSE Composite',  'index',      '3,418.62', '+0.84%',  1,
-        '[{"t":"1","v":3392.1},{"t":"2","v":3401.4},{"t":"3","v":3398.7},{"t":"4","v":3410.2},{"t":"5","v":3418.62}]'::jsonb,
+        '[8, 10, 9, 13, 15, 14, 19, 22, 25, 28]'::jsonb,
         true, true, 1,  (now() AT TIME ZONE 'utc')),
     ('^HSI',      '恒生指数',   'Hang Seng',      'index',      '18,904.30', '-0.22%', -1,
-        '[{"t":"1","v":18960.0},{"t":"2","v":18988.4},{"t":"3","v":18975.1},{"t":"4","v":18920.6},{"t":"5","v":18904.3}]'::jsonb,
+        '[27, 24, 25, 20, 18, 16, 17, 13, 11, 9]'::jsonb,
         true, true, 2,  (now() AT TIME ZONE 'utc')),
     ('^IXIC',     '纳斯达克',   'Nasdaq',         'index',      '15,732.11', '+1.12%',  1,
-        '[{"t":"1","v":15560.2},{"t":"2","v":15601.7},{"t":"3","v":15588.9},{"t":"4","v":15674.3},{"t":"5","v":15732.11}]'::jsonb,
+        '[9, 11, 12, 11, 15, 18, 17, 22, 24, 29]'::jsonb,
         true, true, 3,  (now() AT TIME ZONE 'utc')),
     ('^GSPC',     '标普500',    'S&P 500',        'index',      '5,667.20', '+0.61%',  1,
-        '[{"t":"1","v":5632.8},{"t":"2","v":5641.5},{"t":"3","v":5638.2},{"t":"4","v":5659.4},{"t":"5","v":5667.2}]'::jsonb,
+        '[14, 12, 15, 17, 16, 19, 21, 20, 24, 26]'::jsonb,
         true, true, 4,  (now() AT TIME ZONE 'utc')),
     ('CNY=X',     '离岸人民币', 'CNH',            'fx',         '7.2418',    '+0.04%',  1,
-        '[{"t":"1","v":7.2399},{"t":"2","v":7.2412},{"t":"3","v":7.2405},{"t":"4","v":7.2411},{"t":"5","v":7.2418}]'::jsonb,
+        '[12, 13, 11, 14, 16, 15, 18, 17, 20, 19]'::jsonb,
         true, false, 5, (now() AT TIME ZONE 'utc')),
     ('GC=F',      '黄金',       'Gold',           'commodity',  '2,364.50',  '+0.38%',  1,
-        '[{"t":"1","v":2355.4},{"t":"2","v":2360.1},{"t":"3","v":2358.8},{"t":"4","v":2362.0},{"t":"5","v":2364.5}]'::jsonb,
+        '[6, 8, 7, 10, 12, 11, 15, 17, 18, 21]'::jsonb,
         true, false, 6, (now() AT TIME ZONE 'utc')),
     ('BZ=F',      '布伦特原油', 'Brent Crude',    'commodity',  '78.42',     '-0.55%', -1,
-        '[{"t":"1","v":78.90},{"t":"2","v":78.71},{"t":"3","v":78.80},{"t":"4","v":78.55},{"t":"5","v":78.42}]'::jsonb,
+        '[24, 22, 23, 19, 17, 18, 14, 12, 11, 8]'::jsonb,
         true, false, 7, (now() AT TIME ZONE 'utc')),
     ('BTC-USD',   '比特币',     'Bitcoin',        'crypto',     '61,240.00', '+1.90%',  1,
-        '[{"t":"1","v":60110.0},{"t":"2","v":60580.0},{"t":"3","v":60420.0},{"t":"4","v":60890.0},{"t":"5","v":61240.0}]'::jsonb,
+        '[7, 9, 8, 12, 14, 13, 18, 21, 23, 27]'::jsonb,
         true, false, 8, (now() AT TIME ZONE 'utc')),
     ('CN10Y',     '十年期国债', 'China 10Y',      'rate',       '1.8240%',   '-0.02%', -1,
-        '[{"t":"1","v":1.836},{"t":"2","v":1.831},{"t":"3","v":1.828},{"t":"4","v":1.826},{"t":"5","v":1.824}]'::jsonb,
+        '[26, 24, 25, 21, 19, 18, 16, 13, 11, 9]'::jsonb,
         true, false, 9, (now() AT TIME ZONE 'utc')),
     ('^N225',     '日经225',    'Nikkei 225',     'index',      '38,120.44', '+0.47%',  1,
-        '[{"t":"1","v":37940.0},{"t":"2","v":38010.0},{"t":"3","v":37985.0},{"t":"4","v":38060.0},{"t":"5","v":38120.44}]'::jsonb,
+        '[10, 12, 11, 15, 14, 18, 20, 19, 23, 25]'::jsonb,
         false, false, 10, (now() AT TIME ZONE 'utc')),
     ('EURUSD',    '欧元美元',   'EUR/USD',        'fx',         '1.0832',    '+0.09%',  1,
-        '[{"t":"1","v":1.0821},{"t":"2","v":1.0826},{"t":"3","v":1.0824},{"t":"4","v":1.0830},{"t":"5","v":1.0832}]'::jsonb,
+        '[13, 12, 15, 14, 17, 16, 19, 18, 21, 22]'::jsonb,
         false, false, 11, (now() AT TIME ZONE 'utc')),
     ('ETH-USD',   '以太坊',     'Ethereum',       'crypto',     '2,940.55',  '-0.76%', -1,
-        '[{"t":"1","v":2962.8},{"t":"2","v":2951.0},{"t":"3","v":2958.4},{"t":"4","v":2946.2},{"t":"5","v":2940.55}]'::jsonb,
+        '[25, 23, 24, 20, 19, 16, 17, 13, 12, 8]'::jsonb,
         false, false, 12, (now() AT TIME ZONE 'utc'));
 
 -- -----------------------------------------------------------------------------

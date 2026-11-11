@@ -140,6 +140,12 @@ A trigger, `trg_cj_editorial_stamp_published`, stamps `published_at` with
 The two boolean flags drive which panel a row appears in: `show_in_ticker`
 for the scrolling strip, `show_in_charts` for the mini charts.
 
+`sparkline` holds **an array of ten numbers scaled 0–30** — a normalised
+shape, not the price series. The API reads it as `float(p) for p in
+sparkline` and the front end plots the values directly as y-coordinates, so
+anything else in that column raises a `TypeError` the moment
+`/market/charts` is called.
+
 **`cj_sector_heat`** — the sector heatmap.
 
 `name_cn`, `name_en`, `change_pct`, `net_inflow`, `region`, `sort_order`,
