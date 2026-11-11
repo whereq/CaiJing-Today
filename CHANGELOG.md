@@ -7,15 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Security
-
-- Bumped `axios` from 1.14.0 to 1.21.1. Versions up to 1.19.0 are affected by
-  three high-severity advisories — prototype-pollution gadgets that can leak
-  credentials or hijack responses. The front end uses `axios.create()`,
-  `axios.get()` and one request interceptor, all stable across 1.x.
-- Added `npm audit --audit-level=high` to CI. Moderate findings in build-time
-  lint tooling are tolerated deliberately; high and critical ones are not.
-
 ## [1.0.0] — 2026-11-11
 
 The first public release.
@@ -43,6 +34,15 @@ The first public release.
 - **CI with four gates.** Backend lint, syntax and tests; a schema job that
   applies the contract to a real PostgreSQL and checks the mirror against it;
   a frontend lint, type-check, test and build job; and a Docker build gate.
+
+### Security
+
+- Bumped `axios` from 1.14.0 to 1.21.1. Versions up to 1.19.0 are affected by
+  three high-severity advisories — prototype-pollution gadgets that can leak
+  credentials or hijack responses. The front end uses `axios.create()`,
+  `axios.get()` and one request interceptor, all stable across 1.x.
+- Added `npm audit --audit-level=high` to CI. Moderate findings in build-time
+  lint tooling are tolerated deliberately; high and critical ones are not.
 
 ### Notes
 
