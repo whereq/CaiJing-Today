@@ -1,0 +1,15 @@
+# Build context for the FRONTEND image (docker/frontend/Dockerfile).
+# The important part: frontend/node_modules from the host must NOT be copied
+# over the container's `npm ci` install, and the local .env must not be baked
+# into the bundle.
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.venv
+**/.claude
+.git
