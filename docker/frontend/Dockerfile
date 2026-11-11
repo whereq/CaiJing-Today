@@ -1,4 +1,4 @@
- CaiJing Today frontend — production image (build with Vite, serve with nginx).
+# CaiJing Today frontend — production image (build with Vite, serve with nginx).
 FROM node:22-slim AS build
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json* ./

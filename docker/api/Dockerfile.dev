@@ -1,4 +1,4 @@
- CaiJing Today API — development image (hot reload via uvicorn --reload).
+# CaiJing Today API — development image (hot reload via uvicorn --reload).
 FROM python:3.12-slim
 
 WORKDIR /app

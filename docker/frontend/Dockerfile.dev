@@ -1,4 +1,4 @@
- CaiJing Today frontend — development image (Vite dev server, hot reload).
+# CaiJing Today frontend — development image (Vite dev server, hot reload).
 FROM node:22-slim
 
 WORKDIR /app

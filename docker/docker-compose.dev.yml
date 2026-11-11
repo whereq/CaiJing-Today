@@ -45,8 +45,10 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    # No host port for the database, on purpose — see the note in
+    # docker-compose.yml. The API reaches it over the compose network.
+    #   docker compose -f docker/docker-compose.dev.yml exec postgres \
+    #     psql -U caijing -d caijing
 
   # ---------------------------------------------------------------------------
   # API Layer (read-only against the database)

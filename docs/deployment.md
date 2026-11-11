@@ -58,7 +58,6 @@ Before you do that, change at least:
 |---|---|
 | `POSTGRES_PASSWORD` | The shipped value is `caijing`. Change it. |
 | `POSTGRES_PASSWORD_ENCODED` | The URL-encoded form of the same password. |
-| `POSTGRES_PORT` | Consider not publishing PostgreSQL at all — set it to an unused port, or remove the `ports` block from the compose file. |
 | `KEYCLOAK_*` and `VITE_KEYCLOAK_*` | Point at your own realm if you want sign-in. |
 
 **Rebuild the front end when you change the OIDC settings.** They are baked
@@ -68,9 +67,10 @@ into the bundle at build time:
 docker compose -f docker/docker-compose.yml up -d --build caijing-frontend
 ```
 
-**Keep the database off the public network.** The compose file publishes
-PostgreSQL on `POSTGRES_PORT` so you can reach it with `psql` from the host.
-On a server that is not firewalled, remove that `ports` block.
+**The database stays off the network.** The compose stack does not publish
+PostgreSQL on a host port; the API reaches it over the compose network. If
+you add a `ports:` entry for it — to reach it with `psql` from the host, say —
+bind it to `127.0.0.1` rather than `0.0.0.0`.
 
 ---
 

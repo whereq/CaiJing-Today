@@ -23,7 +23,7 @@ docker compose -f docker/docker-compose.yml up -d --build
 | Web UI | <http://localhost:8080> |
 | API | <http://localhost:8000> |
 | API docs | <http://localhost:8000/docs> |
-| PostgreSQL | `localhost:5432` (`caijing` / `caijing` / `caijing`) |
+| PostgreSQL | not published on the host — see below |
 
 The stack is self-contained. On first boot PostgreSQL applies
 `docs/SCHEMA.sql` and then loads `docs/samples/demo_data.sql`, so every panel
@@ -42,6 +42,15 @@ the data directory is empty, so this is how you re-apply the schema.
 **Bring up an empty database (no demo rows):** set `LOAD_DEMO_DATA=false` in
 `docker/.env` before the first `up`.
 
+**Reaching the database.** The stack does not publish PostgreSQL on a host
+port — the API reaches it over the compose network, and publishing it would
+only risk colliding with a PostgreSQL you already run. Use `psql` inside the
+container:
+
+```bash
+docker compose -f docker/docker-compose.yml exec postgres psql -U caijing -d caijing
+```
+
 **Watch the logs:**
 
 ```bash
@@ -56,7 +65,6 @@ Everything lives in `docker/.env`. The defaults work as shipped.
 |---|---|---|
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `caijing` | The database the stack creates. |
 | `POSTGRES_PASSWORD_ENCODED` | `caijing` | The password in URL-encoded form, used inside `DATABASE_URL`. Percent-encode it if your password contains `@ : / ? # [ ] %`. |
-| `POSTGRES_PORT` | `5432` | The host port PostgreSQL is published on. Change it if you already run Postgres locally. |
 | `LOAD_DEMO_DATA` | `true` | Whether to load the synthetic demo dataset. |
 | `API_PORT` | `8000` | The host port the API is published on. |
 | `FRONTEND_PORT` | `8080` | The host port the web UI is published on. |
@@ -203,8 +211,8 @@ changing them requires rebuilding the image. Browsing works regardless; that
 is by design.
 
 **Port already in use.**
-Change `API_PORT`, `FRONTEND_PORT` or `POSTGRES_PORT` in `docker/.env`.
-`POSTGRES_PORT` in particular collides with a local PostgreSQL.
+Change `API_PORT` or `FRONTEND_PORT` in `docker/.env`. The database is not
+published on a host port, so it cannot collide with a local PostgreSQL.
 
 **`pip install -r requirements.txt` fails to build `pydantic-core`.**
 Your Python is newer than 3.12 and the pinned versions have no prebuilt

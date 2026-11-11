@@ -70,9 +70,11 @@ realm, the client id and the `azp` claim must all line up, and the JWKS
 endpoint must be reachable.
 
 **The shipped credentials are development credentials.** `docker/.env.example`
-sets `POSTGRES_PASSWORD=caijing` and the compose stack publishes PostgreSQL on
-`localhost:5432`. Change the password before you expose the stack, and do not
-publish the database port at all if you do not need `psql` from the host.
+sets `POSTGRES_PASSWORD=caijing`. Change it before you expose the stack.
+
+The compose stack does not publish PostgreSQL on a host port — the API reaches
+it over the compose network, and the database stays off the network. If you
+add a `ports:` entry for it, bind it to `127.0.0.1` rather than `0.0.0.0`.
 
 The demo dataset is entirely synthetic, so running it exposes nothing real.
 Connecting your own collector changes that — the content in your database

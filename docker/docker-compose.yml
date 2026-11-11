@@ -47,8 +47,15 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    # No host port for the database, on purpose. The API reaches it over the
+    # compose network, so publishing it buys nothing and only risks colliding
+    # with a PostgreSQL you already run on the host — and it needlessly
+    # exposes a database to the network.
+    #
+    # To reach it from the host:
+    #   docker compose -f docker/docker-compose.yml exec postgres \
+    #     psql -U caijing -d caijing
+    # To publish it anyway, add a `ports:` entry here.
 
   # ---------------------------------------------------------------------------
   # API — the read API. It never writes; it reads the schema contract.
