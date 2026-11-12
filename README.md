@@ -35,7 +35,7 @@ service, no accounts.
 | **Flash feed** | A 7×24 newswire, with an article sidebar that follows you as you read. |
 | **Market panels** | A scrolling quote strip, sparkline charts, a sector heatmap, crypto coins and chains, an economic calendar, trending keywords and an individual-stock hot list. |
 | **Optional sign-in** | Authentication is delegated to your own OpenID Connect provider. Browsing is public, so the site works with no identity provider at all. |
-| **Dark and light** | A theme that follows your system and remembers your choice. |
+| **Dark and light** | Dark by default, with a light theme. The toggle in the header switches between them, and the choice is remembered. |
 
 ## Quick start
 

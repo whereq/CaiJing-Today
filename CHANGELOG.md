@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Corrected the README's theme description. The theme does not follow the
+  operating system: the board is dark by default, the header toggle switches
+  it to light, and the choice is remembered in `localStorage`.
+
 ## [1.0.1] — 2026-11-12
 
 Fixes the first run: a fresh checkout now loads in a browser.
