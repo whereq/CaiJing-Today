@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { CATS } from '../lib/categories'
 import { isCn } from '../lib/format'
 import { useAuth } from '../auth/useAuth'
+import { oidcConfigured } from '../auth/config'
 import UserAvatar from './icons/UserAvatar'
 
 export default function Drawer({ onClose }: { onClose: () => void }) {
@@ -41,7 +42,7 @@ export default function Drawer({ onClose }: { onClose: () => void }) {
           <button onClick={() => { logout(); onClose() }} style={{ width: '100%', padding: '0 14px', minHeight: 46, display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 0, borderBottom: '1px solid var(--bd)', color: 'var(--down)', fontSize: 13.5, cursor: 'pointer', textAlign: 'left' }}>
             ↳ {t('auth.signOut')}
           </button>
-        ) : (
+        ) : oidcConfigured ? (
           <div style={{ display: 'flex', borderBottom: '1px solid var(--bd)' }}>
             <button onClick={() => { login(); onClose() }} style={{ flex: 1, minHeight: 46, background: 'none', border: 0, borderRight: '1px solid var(--bd)', color: 'var(--tx)', fontSize: 13.5, cursor: 'pointer' }}>
               → {t('auth.signIn')}
@@ -50,7 +51,7 @@ export default function Drawer({ onClose }: { onClose: () => void }) {
               ＋ {t('auth.signUp')}
             </button>
           </div>
-        )}
+        ) : null}
 
         <Link to="/" onClick={onClose} style={{ padding: '0 14px', minHeight: 46, display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--bd)', color: 'var(--tx)', fontSize: 13.5, fontWeight: 600 }}>
           {t('nav.home')}

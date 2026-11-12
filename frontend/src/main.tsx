@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './i18n'
 import App from './App'
 import './index.css'
-import keycloak from './auth/keycloak'
+import keycloak, { oidcConfigured } from './auth/keycloak'
 import { AuthProvider } from './auth/AuthProvider'
 import { ThemeProvider } from './contexts/ThemeContext'
 
@@ -32,7 +32,15 @@ function mount() {
 }
 
 // News browsing is public — mount even if Keycloak SSO fails to initialise.
-keycloak
-  .init({ onLoad: 'check-sso', pkceMethod: 'S256', checkLoginIframe: false })
-  .catch(() => { /* anonymous mode */ })
-  .finally(mount)
+if (oidcConfigured) {
+  keycloak
+    .init({ onLoad: 'check-sso', pkceMethod: 'S256', checkLoginIframe: false })
+    .catch(() => { /* anonymous mode */ })
+    .finally(mount)
+} else {
+  // No identity provider is configured. The Keycloak client would check for
+  // an SSO session by redirecting the browser to the issuer, and with the
+  // placeholder issuer that redirect lands on a DNS error page before the
+  // app ever paints. Mount straight away and stay in anonymous mode.
+  mount()
+}

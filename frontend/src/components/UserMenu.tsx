@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/useAuth'
+import { oidcConfigured } from '../auth/config'
 import UserAvatar from './icons/UserAvatar'
 
 const btn: CSSProperties = {
@@ -31,6 +32,10 @@ export default function UserMenu() {
   }, [open])
 
   const close = () => setOpen(false)
+
+  // With no identity provider there is nothing to sign in to, so the control
+  // is hidden rather than offering a button that cannot work.
+  if (!oidcConfigured) return null
 
   return (
     <div ref={ref} style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}>

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-11-12
+
+Fixes the first run: a fresh checkout now loads in a browser.
+
+### Fixed
+
+- **The site no longer redirects away when no identity provider is set up.**
+  The Keycloak client initialised with `check-sso` and the login iframe
+  disabled, so it looked for an existing SSO session by redirecting the whole
+  browser to the authorization endpoint. Against the shipped placeholder
+  issuer — `auth.example.com`, under the reserved `example.com` — that
+  redirect landed on a DNS error page and the app never painted, which is the
+  opposite of the anonymous mode the README promises. An issuer under the
+  reserved `example.com` now means "no identity provider": the app mounts
+  straight away, and the sign-in control is hidden because there is nothing
+  to sign in to.
+
 ## [1.0.0] — 2026-11-11
 
 The first public release.
@@ -51,5 +68,6 @@ The first public release.
 - Authentication is optional. Browsing is public; sign-in is delegated to
   your own OpenID Connect provider.
 
-[Unreleased]: https://github.com/whereq/CaiJing-Today/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/whereq/CaiJing-Today/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/whereq/CaiJing-Today/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/whereq/CaiJing-Today/releases/tag/v1.0.0
